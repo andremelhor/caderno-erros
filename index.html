@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Caderno de Erros</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1f5f8b">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  :root { --bg:#ffffff; --fg:#1d2733; --muted:#5d6b7a; --line:#d9e0e7; --accent:#1f5f8b; --accent-fg:#ffffff; --hover:#eef3f7; --soft:#f6f8fa; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#161b21; --fg:#e6ebf0; --muted:#97a4b2; --line:#2b3540; --accent:#6bb3e0; --accent-fg:#0f1419; --hover:#1f2730; --soft:#1b2129; }
+  }
+  * { box-sizing:border-box; }
+  [hidden] { display:none !important; }
+  html, body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.5 system-ui, -apple-system, sans-serif; }
+  body { padding-bottom:calc(64px + env(safe-area-inset-bottom, 0px)); }
+
+  .top { max-width:560px; margin:0 auto; padding:calc(14px + env(safe-area-inset-top, 0px)) 16px 4px; display:flex; align-items:center; justify-content:space-between; }
+  .top h1 { font-size:15px; font-weight:600; margin:0; color:var(--muted); letter-spacing:.02em; }
+  .icone-btn { border:0; background:transparent; color:var(--muted); font-size:20px; padding:6px 10px; border-radius:8px; cursor:pointer; }
+  .icone-btn:hover { background:var(--hover); }
+
+  main { max-width:560px; margin:0 auto; padding:8px 16px 24px; }
+  h2 { font-size:13px; font-weight:600; color:var(--muted); margin:28px 0 10px; text-transform:uppercase; letter-spacing:.06em; }
+  .muted { color:var(--muted); }
+  .linha-topo { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; color:var(--muted); font-size:14px; }
+  .link { border:0; background:transparent; color:var(--accent); font:inherit; font-size:14px; cursor:pointer; padding:4px 0; }
+
+  button { font:inherit; color:var(--fg); }
+  button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+
+  /* Cartão de revisão */
+  .cartao { border:1px solid var(--line); border-radius:14px; padding:22px 20px; background:var(--bg); }
+  .meta { font-size:13px; color:var(--muted); margin-bottom:14px; overflow-wrap:anywhere; }
+  .pergunta { font-size:21px; line-height:1.35; margin:0; font-weight:600; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .resposta { margin-top:18px; padding-top:16px; border-top:1px solid var(--line); }
+  .resp-t { margin:0 0 10px; font-size:17px; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .regra { margin:0 0 8px; color:var(--muted); font-size:14px; white-space:pre-wrap; overflow-wrap:anywhere; }
+  .fonte { margin:0; color:var(--muted); font-size:13px; }
+  .acoes { display:flex; gap:10px; margin-top:14px; }
+  .btn { flex:1; border:1px solid var(--line); background:transparent; border-radius:12px; padding:14px 16px; font-size:16px; cursor:pointer; }
+  .btn:hover { background:var(--hover); }
+  .btn:disabled { opacity:.5; cursor:default; }
+  .btn.primario { background:var(--accent); color:var(--accent-fg); border-color:var(--accent); font-weight:600; }
+  .btn.primario:hover { opacity:.92; }
+  .vazio { text-align:center; padding:56px 16px; }
+  .vazio-t { font-size:19px; font-weight:600; margin-bottom:6px; }
+
+  /* Formulário */
+  label { display:block; font-size:13px; color:var(--muted); margin:16px 0 6px; }
+  input, select, textarea { width:100%; font:inherit; font-size:16px; color:var(--fg); background:transparent; border:1px solid var(--line); border-radius:10px; padding:11px 12px; }
+  select { appearance:none; background-image:linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position:calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size:5px 5px, 5px 5px; background-repeat:no-repeat; padding-right:34px; }
+  select option { color:#1d2733; }
+  textarea { min-height:84px; resize:vertical; }
+  .duas { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .chips { display:flex; gap:8px; }
+  .chip { flex:1; border:1px solid var(--line); background:transparent; border-radius:10px; padding:10px 6px; cursor:pointer; font-size:14px; }
+  .chip.on { background:var(--accent); color:var(--accent-fg); border-color:var(--accent); font-weight:600; }
+  details { margin-top:22px; border-top:1px solid var(--line); padding-top:6px; }
+  summary { cursor:pointer; padding:10px 0; color:var(--accent); font-size:14px; }
+  #btn-salvar { width:100%; margin-top:24px; }
+
+  /* Painel */
+  .tiles { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px; }
+  .tile { border:1px solid var(--line); border-radius:12px; padding:14px; }
+  .tile b { display:block; font-size:28px; line-height:1.1; }
+  .tile span { font-size:13px; color:var(--muted); }
+  .barra-linha { margin:10px 0; }
+  .barra-topo { display:flex; justify-content:space-between; font-size:14px; gap:10px; }
+  .barra-topo span:first-child { overflow-wrap:anywhere; }
+  .trilho { height:6px; background:var(--soft); border-radius:3px; margin-top:5px; overflow:hidden; }
+  .preen { height:100%; background:var(--accent); border-radius:3px; }
+
+  .msg { font-size:14px; color:var(--muted); min-height:20px; margin-top:10px; }
+  .msg.erro { color:#c0392b; }
+  @media (prefers-color-scheme: dark) { .msg.erro { color:#ff8a7a; } }
+
+  /* Navegação inferior */
+  .tabs { position:fixed; left:0; right:0; bottom:0; display:flex; background:var(--bg); border-top:1px solid var(--line); padding-bottom:env(safe-area-inset-bottom, 0px); }
+  .tabs button { flex:1; border:0; background:transparent; padding:15px 0 14px; font-size:14px; color:var(--muted); cursor:pointer; border-top:2px solid transparent; margin-top:-1px; }
+  .tabs button.on { color:var(--accent); font-weight:600; border-top-color:var(--accent); }
+
+  #toast { position:fixed; left:50%; bottom:calc(80px + env(safe-area-inset-bottom, 0px)); transform:translateX(-50%); background:var(--fg); color:var(--bg); padding:10px 16px; border-radius:10px; font-size:14px; max-width:90%; opacity:0; pointer-events:none; transition:opacity .2s; text-align:center; }
+  #toast.on { opacity:1; }
+</style>
+</head>
+<body>
+<header class="top">
+  <h1>Caderno de erros</h1>
+  <button class="icone-btn" id="btn-config" aria-label="Configurações" type="button">⚙</button>
+</header>
+
+<main>
+  <!-- REVISAR -->
+  <section id="v-revisar">
+    <div class="linha-topo">
+      <span id="rev-prog"></span>
+      <button class="link" id="btn-atualizar" type="button">Atualizar</button>
+    </div>
+    <div id="rev-box"></div>
+    <div class="msg" id="rev-msg"></div>
+  </section>
+
+  <!-- REGISTRAR -->
+  <section id="v-registrar" hidden>
+    <label for="f-concurso">Concurso</label>
+    <select id="f-concurso"></select>
+    <label for="f-disciplina">Disciplina</label>
+    <select id="f-disciplina"></select>
+    <label for="f-tipo">Tipo de erro</label>
+    <select id="f-tipo"></select>
+
+    <label for="f-topico">Tópico</label>
+    <input id="f-topico" type="text" autocomplete="off">
+
+    <label for="f-enunciado">Enunciado (resumo)</label>
+    <textarea id="f-enunciado"></textarea>
+
+    <div class="duas">
+      <div><label for="f-minha">Minha resposta</label><input id="f-minha" type="text" maxlength="3" autocomplete="off"></div>
+      <div><label for="f-gab">Gabarito</label><input id="f-gab" type="text" maxlength="3" autocomplete="off"></div>
+    </div>
+
+    <label>Confiança ao marcar</label>
+    <div class="chips" id="chips">
+      <button type="button" class="chip" data-v="1">1 · Chute</button>
+      <button type="button" class="chip" data-v="2">2 · Dúvida</button>
+      <button type="button" class="chip" data-v="3">3 · Certeza</button>
+    </div>
+
+    <label for="f-porque">Por que marquei isso (antes de ver a explicação)</label>
+    <textarea id="f-porque"></textarea>
+
+    <details>
+      <summary>Mais detalhes (pode preencher depois)</summary>
+      <label for="f-regra">Regra correta, nas minhas palavras</label>
+      <textarea id="f-regra"></textarea>
+      <label for="f-pergunta">Cartão: pergunta</label>
+      <textarea id="f-pergunta"></textarea>
+      <label for="f-resposta">Cartão: resposta</label>
+      <textarea id="f-resposta"></textarea>
+      <label for="f-alt">Por que cada alternativa está certa ou errada</label>
+      <textarea id="f-alt"></textarea>
+      <label for="f-banca">Banca / ano</label>
+      <input id="f-banca" type="text" autocomplete="off">
+      <label for="f-fonte">Fonte (PDF / página)</label>
+      <input id="f-fonte" type="text" autocomplete="off">
+    </details>
+
+    <button class="btn primario" id="btn-salvar" type="button">Registrar erro</button>
+    <div class="msg" id="reg-msg"></div>
+  </section>
+
+  <!-- PAINEL -->
+  <section id="v-painel" hidden>
+    <div class="linha-topo"><span></span><button class="link" id="btn-atualizar-painel" type="button">Atualizar</button></div>
+    <div class="tiles" id="tiles"></div>
+    <div id="barras"></div>
+    <div class="msg" id="pai-msg"></div>
+  </section>
+
+  <!-- CONFIGURAÇÕES -->
+  <section id="v-config" hidden>
+    <h2>Chave de acesso</h2>
+    <p class="muted" style="margin-top:0">Digite a chave que você criou no Apps Script. Ela fica guardada só neste aparelho.</p>
+    <input id="f-chave" type="password" autocomplete="off" placeholder="Sua chave">
+    <div class="acoes">
+      <button class="btn primario" id="btn-salvar-chave" type="button">Salvar e testar</button>
+      <button class="btn" id="btn-limpar-chave" type="button">Remover</button>
+    </div>
+    <div class="msg" id="cfg-msg"></div>
+  </section>
+</main>
+
+<nav class="tabs" id="tabs">
+  <button type="button" data-v="revisar" class="on">Revisar</button>
+  <button type="button" data-v="registrar">Registrar</button>
+  <button type="button" data-v="painel">Painel</button>
+</nav>
+<div id="toast" role="status"></div>
+
+<script>
+// COLE AQUI o URL do app da Web do Apps Script (termina em /exec)
+const API_URL = "COLE_AQUI_O_URL_TERMINADO_EM_/exec";
+
+const $ = id => document.getElementById(id);
+const chave = () => localStorage.getItem("chave") || "";
+
+function el(tag, cls, texto) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (texto !== undefined) e.textContent = texto;
+  return e;
+}
+
+let toastTimer;
+function toast(t) {
+  const x = $("toast"); x.textContent = t; x.classList.add("on");
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => x.classList.remove("on"), 2600);
+}
+
+// ---------- API ----------
+async function get(action) {
+  const r = await fetch(`${API_URL}?action=${action}&chave=${encodeURIComponent(chave())}`);
+  const j = await r.json();
+  if (j.erro) throw new Error(j.erro);
+  return j;
+}
+async function post(corpo) {
+  // text/plain evita o "preflight" de CORS no Apps Script
+  const r = await fetch(API_URL, { method: "POST", body: JSON.stringify({ ...corpo, chave: chave() }) });
+  const j = await r.json();
+  if (j.erro) throw new Error(j.erro);
+  return j;
+}
+function mensagemErro(e) {
+  if (e.message === "nao autorizado") return "Chave incorreta ou ausente. Confira em ⚙.";
+  if (e instanceof TypeError) return "Sem conexão com o caderno. Tente de novo.";
+  return e.message;
+}
+
+// ---------- Navegação ----------
+let aba = "revisar";
+function mostrar(nome) {
+  aba = nome;
+  ["revisar", "registrar", "painel", "config"].forEach(v => { $("v-" + v).hidden = v !== nome; });
+  document.querySelectorAll("#tabs button").forEach(b => b.classList.toggle("on", b.dataset.v === nome));
+  if (!chave() && nome !== "config") { mostrar("config"); return; }
+  if (nome === "revisar" && !filaCarregada) carregarFila();
+  if (nome === "registrar") carregarListas();
+  if (nome === "painel") carregarPainel();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll("#tabs button").forEach(b => b.addEventListener("click", () => mostrar(b.dataset.v)));
+$("btn-config").addEventListener("click", () => mostrar("config"));
+
+// ---------- Revisar ----------
+let fila = [], atual = 0, totalHoje = 0, filaCarregada = false;
+
+function embaralhar(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+async function carregarFila() {
+  $("rev-msg").textContent = "Carregando..."; $("rev-msg").className = "msg";
+  try {
+    const j = await get("fila");
+    fila = embaralhar(j.cartoes); totalHoje = fila.length; atual = 0; filaCarregada = true;
+    $("rev-msg").textContent = "";
+    desenharCartao();
+  } catch (e) {
+    $("rev-msg").textContent = mensagemErro(e); $("rev-msg").className = "msg erro";
+  }
+}
+
+function desenharCartao() {
+  const box = $("rev-box"); box.innerHTML = "";
+  if (atual >= fila.length) {
+    const v = el("div", "vazio");
+    v.appendChild(el("div", "vazio-t", totalHoje === 0 ? "Nada para revisar hoje" : "Revisão concluída"));
+    v.appendChild(el("div", "muted", totalHoje === 0 ? "Seus erros estão em dia." :
+      `${totalHoje} ${totalHoje === 1 ? "cartão revisado" : "cartões revisados"} hoje.`));
+    box.appendChild(v); $("rev-prog").textContent = ""; return;
+  }
+  const c = fila[atual];
+  $("rev-prog").textContent = `${atual + 1} de ${fila.length}`;
+
+  const card = el("article", "cartao");
+  card.appendChild(el("div", "meta", [c.concurso, c.disciplina, c.topico].filter(Boolean).join(" · ")));
+  card.appendChild(el("p", "pergunta", c.pergunta || `Explique a regra de: ${c.topico || c.disciplina}`));
+  const resp = el("div", "resposta"); resp.hidden = true;
+  if (c.resposta) resp.appendChild(el("p", "resp-t", c.resposta));
+  if (c.regra) resp.appendChild(el("p", "regra", "Regra: " + c.regra));
+  if (c.fonte) resp.appendChild(el("p", "fonte", "Fonte: " + c.fonte));
+  if (!c.resposta && !c.regra) resp.appendChild(el("p", "resp-t", "(Sem resposta cadastrada na planilha)"));
+  card.appendChild(resp);
+  box.appendChild(card);
+
+  const acoes = el("div", "acoes");
+  const bMostrar = el("button", "btn primario", "Mostrar resposta");
+  const bErrei = el("button", "btn", "Errei");
+  const bAcertei = el("button", "btn primario", "Acertei");
+  [bMostrar, bErrei, bAcertei].forEach(b => { b.type = "button"; });
+  bErrei.hidden = true; bAcertei.hidden = true;
+  bMostrar.addEventListener("click", () => {
+    resp.hidden = false; bMostrar.hidden = true; bErrei.hidden = false; bAcertei.hidden = false;
+  });
+  bErrei.addEventListener("click", () => avaliar(c, "errei", [bErrei, bAcertei]));
+  bAcertei.addEventListener("click", () => avaliar(c, "acertei", [bErrei, bAcertei]));
+  acoes.append(bMostrar, bErrei, bAcertei);
+  box.appendChild(acoes);
+}
+
+async function avaliar(c, resultado, botoes) {
+  botoes.forEach(b => { b.disabled = true; });
+  try {
+    await post({ action: "revisar", id: c.id, resultado });
+    atual++; desenharCartao();
+  } catch (e) {
+    botoes.forEach(b => { b.disabled = false; });
+    toast(mensagemErro(e));
+  }
+}
+$("btn-atualizar").addEventListener("click", () => { filaCarregada = false; carregarFila(); });
+
+// ---------- Registrar ----------
+let listas = null, confianca = 0;
+
+function preencherSelect(id, itens, titulo, manter) {
+  const s = $(id), antes = s.value;
+  s.innerHTML = "";
+  const o0 = el("option", "", titulo); o0.value = ""; s.appendChild(o0);
+  itens.forEach(t => { const o = el("option", "", t); o.value = t; s.appendChild(o); });
+  if (manter && itens.includes(antes)) s.value = antes;
+}
+function montarListas(l) {
+  preencherSelect("f-concurso", l.concursos, "Escolha o concurso", true);
+  preencherSelect("f-disciplina", l.disciplinas, "Escolha a disciplina", true);
+  preencherSelect("f-tipo", l.tipos, "Escolha o tipo de erro", true);
+}
+async function carregarListas() {
+  if (!listas) {
+    try { listas = JSON.parse(localStorage.getItem("listas")); } catch (e) {}
+    if (listas) montarListas(listas);
+  }
+  try {
+    listas = await get("listas");
+    localStorage.setItem("listas", JSON.stringify(listas));
+    montarListas(listas);
+  } catch (e) {
+    if (!listas) { $("reg-msg").textContent = mensagemErro(e); $("reg-msg").className = "msg erro"; }
+  }
+}
+document.querySelectorAll("#chips .chip").forEach(b => b.addEventListener("click", () => {
+  confianca = Number(b.dataset.v);
+  document.querySelectorAll("#chips .chip").forEach(x => x.classList.toggle("on", x === b));
+}));
+
+$("btn-salvar").addEventListener("click", async () => {
+  const msg = $("reg-msg"); msg.className = "msg"; msg.textContent = "";
+  const dados = {
+    concurso: $("f-concurso").value, disciplina: $("f-disciplina").value, tipo: $("f-tipo").value,
+    topico: $("f-topico").value.trim(), enunciado: $("f-enunciado").value.trim(),
+    minhaResposta: $("f-minha").value.trim(), gabarito: $("f-gab").value.trim(),
+    confianca: confianca || "", porQue: $("f-porque").value.trim(),
+    regra: $("f-regra").value.trim(), pergunta: $("f-pergunta").value.trim(),
+    resposta: $("f-resposta").value.trim(), alternativas: $("f-alt").value.trim(),
+    banca: $("f-banca").value.trim(), fonte: $("f-fonte").value.trim()
+  };
+  if (!dados.concurso || !dados.disciplina || !dados.tipo) {
+    msg.textContent = "Escolha concurso, disciplina e tipo de erro."; msg.className = "msg erro"; return;
+  }
+  const b = $("btn-salvar"); b.disabled = true; b.textContent = "Salvando...";
+  try {
+    const j = await post({ action: "registrar", dados });
+    toast(`Erro #${j.id} registrado`);
+    ["f-topico","f-enunciado","f-minha","f-gab","f-porque","f-regra","f-pergunta","f-resposta","f-alt","f-banca","f-fonte"]
+      .forEach(id => { $(id).value = ""; });
+    confianca = 0; document.querySelectorAll("#chips .chip").forEach(x => x.classList.remove("on"));
+    filaCarregada = false; // a fila de hoje pode mudar
+  } catch (e) {
+    msg.textContent = mensagemErro(e); msg.className = "msg erro";
+  } finally {
+    b.disabled = false; b.textContent = "Registrar erro";
+  }
+});
+
+// ---------- Painel ----------
+function barras(titulo, obj) {
+  const bloco = el("div"); bloco.appendChild(el("h2", "", titulo));
+  const itens = Object.entries(obj).sort((a, b) => b[1] - a[1]);
+  const max = itens.length ? itens[0][1] : 1;
+  if (!itens.length) bloco.appendChild(el("div", "muted", "Sem dados ainda."));
+  itens.forEach(([nome, q]) => {
+    const linha = el("div", "barra-linha");
+    const topo = el("div", "barra-topo");
+    topo.append(el("span", "", nome), el("span", "muted", String(q)));
+    const trilho = el("div", "trilho"); const p = el("div", "preen");
+    p.style.width = Math.round((q / max) * 100) + "%"; trilho.appendChild(p);
+    linha.append(topo, trilho); bloco.appendChild(linha);
+  });
+  return bloco;
+}
+async function carregarPainel() {
+  $("pai-msg").textContent = "Carregando..."; $("pai-msg").className = "msg";
+  try {
+    const j = await get("painel");
+    $("pai-msg").textContent = "";
+    const t = $("tiles"); t.innerHTML = "";
+    [["Total de erros", j.total], ["Para revisar hoje", j.hoje], ["Dominados", j.dominados], ["Com certeza 3", j.certeza3]]
+      .forEach(([nome, v]) => {
+        const d = el("div", "tile"); d.appendChild(el("b", "", String(v))); d.appendChild(el("span", "", nome)); t.appendChild(d);
+      });
+    const b = $("barras"); b.innerHTML = "";
+    b.append(barras("Por tipo de erro", j.porTipo), barras("Por disciplina", j.porDisciplina), barras("Por concurso", j.porConcurso));
+  } catch (e) {
+    $("pai-msg").textContent = mensagemErro(e); $("pai-msg").className = "msg erro";
+  }
+}
+$("btn-atualizar-painel").addEventListener("click", carregarPainel);
+
+// ---------- Configurações ----------
+$("btn-salvar-chave").addEventListener("click", async () => {
+  const v = $("f-chave").value.trim(); const m = $("cfg-msg");
+  if (!v) { m.textContent = "Digite a chave."; m.className = "msg erro"; return; }
+  localStorage.setItem("chave", v); m.className = "msg"; m.textContent = "Testando...";
+  try {
+    await get("listas");
+    $("f-chave").value = ""; m.textContent = "Chave aceita ✓";
+    filaCarregada = false; setTimeout(() => mostrar("revisar"), 600);
+  } catch (e) {
+    localStorage.removeItem("chave"); m.textContent = mensagemErro(e); m.className = "msg erro";
+  }
+});
+$("btn-limpar-chave").addEventListener("click", () => {
+  localStorage.removeItem("chave"); localStorage.removeItem("listas"); listas = null; filaCarregada = false;
+  $("cfg-msg").className = "msg"; $("cfg-msg").textContent = "Chave removida deste aparelho.";
+});
+
+// ---------- Início ----------
+mostrar(chave() ? "revisar" : "config");
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
+</script>
+</body>
+</html>
