@@ -1,6 +1,6 @@
 {
   "name": "Caderno de Erros",
-  "short_name": "Erros",
+  "short_name": "Caderno de Erros",
   "description": "Caderno de erros com revisão espaçada para concursos",
   "start_url": "./",
   "scope": "./",
